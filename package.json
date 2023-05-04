@@ -16,6 +16,11 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/react": "^18.2.5",
+    "@types/react-dom": "^18.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "yalc": "1.0.0-pre.53"
@@ -47,5 +52,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "@atproto/api": "^0.2.11",
+    "jsonwebtoken": "^9.0.0"
+  }
 }

@@ -1,27 +1,10 @@
-"use client";
-
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { BskyAgent } from "@atproto/api";
 import * as jwt from "jsonwebtoken";
 
-import { useLocalStorageState } from "./hooks/useLocalStorageState";
-import type { LoginResponseDataType } from "./types";
-
-type RefreshJwtType = {
-  exp: number;
-  iat: number;
-  jti: string; // long random key
-  scope: "com.atproto.refresh";
-  sub: string; // did
-};
-
-type AccessJwtType = {
-  exp: number;
-  iat: number;
-  scope: string;
-  sub: string;
-};
+import { useLocalStorageState } from "./useLocalStorageState";
+import type { AccessJwt, LoginResponseData } from "../types";
 
 const agent = new BskyAgent({
   service: "https://bsky.social",
@@ -32,7 +15,7 @@ type ATPContextType = {
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  getToken: () => string | null;
+  getToken: () => Promise<string | null>;
 };
 
 export const ATPContext = createContext<ATPContextType>({
@@ -40,7 +23,7 @@ export const ATPContext = createContext<ATPContextType>({
   isAuthenticated: false,
   login: async () => {},
   logout: async () => {},
-  getToken: () => null,
+  getToken: async () => null,
 });
 
 /**
@@ -51,16 +34,12 @@ export const ATPContext = createContext<ATPContextType>({
 
 export const ATPProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
-  // const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [loginResponseData, setLoginResponseData] =
-    useLocalStorageState<LoginResponseDataType | null>(
-      "@loginResopnseData",
-      null
-    );
+    useLocalStorageState<LoginResponseData | null>("@loginResponseData", null);
 
   const accessJwt = !!loginResponseData?.accessJwt
-    ? (jwt.decode(loginResponseData.accessJwt) as AccessJwtType)
+    ? (jwt.decode(loginResponseData.accessJwt) as AccessJwt)
     : null;
 
   const loginExpiration = accessJwt?.exp;
@@ -97,19 +76,25 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
         password,
       });
 
+      console.log(response);
+
       if (response.success) {
         setLoginResponseData({ ...response.data });
         // setIsAuthenticated(true);
       } else {
         setLoginResponseData(null);
+        throw new Error("could not login");
         // setIsAuthenticated(false);
       }
     } catch (err) {
       setLoginResponseData(null);
+      throw new Error("could not login");
       // setIsAuthenticated(false);
     }
 
     setIsLoading(false);
+
+    return;
   };
 
   const logout = async () => {
@@ -117,23 +102,32 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
     // setIsAuthenticated(false);
   };
 
-  const value: ATPContextType = {
-    isLoading,
-    isAuthenticated,
-    login,
-    logout,
-    getToken: () => null,
+  const getToken = async () => {
+    console.log("getToken");
+    return "";
   };
 
-  return <ATPContext.Provider value={value}>{children}</ATPContext.Provider>;
+  return (
+    <ATPContext.Provider
+      value={{
+        isLoading,
+        isAuthenticated,
+        login,
+        logout,
+        getToken,
+      }}
+    >
+      {children}
+    </ATPContext.Provider>
+  );
 };
 
-export const useATP = () => {
-  const { isAuthenticated, login, logout } = useContext(ATPContext);
+export const useATP = (): ATPContextType => {
+  const context = useContext(ATPContext);
 
-  return {
-    isAuthenticated,
-    login,
-    logout,
-  };
+  if (!context) {
+    throw new Error("useATP must be used within a ATPProvider");
+  }
+
+  return context;
 };

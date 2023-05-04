@@ -4,12 +4,34 @@
   "description": "",
   "scripts": {
     "dev": "pnpm build --watch",
-    "build": "tsup --onSuccess \"pnpm yalc push\"",
+    "build": "tsup",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "Jem Gold <npm@jem.fm> (https://jem.fm/)",
+  "keywords": [
+    "atproto",
+    "bluesky"
+  ],
+  "author": "Jem Gold <591643+jemgold@users.noreply.github.com> (https://jem.fm/)",
   "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./client": {
+      "types": "./client/index.d.ts",
+      "require": "./client/index.js",
+      "import": "./client/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "client",
+    "dist"
+  ],
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -24,16 +46,6 @@
     "typescript": "^5.0.4",
     "yalc": "1.0.0-pre.53"
   },
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@atproto/api": "^0.2.11",
     "jsonwebtoken": "^9.0.0"

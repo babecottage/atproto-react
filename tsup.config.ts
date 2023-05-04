@@ -1,19 +1,28 @@
-import { defineConfig } from "tsup";
+import { Options, defineConfig } from "tsup";
 
-export default defineConfig({
-  entry: ["src/index.ts"],
-
-  // treeshake: true,
-  minify: true,
-  esbuildOptions: (options) => {
-    options.banner = {
-      js: '"use client";',
-    };
-  },
+export const commonConfig: Options = {
   clean: true,
   dts: true,
-  splitting: false,
-  format: ["cjs", "esm"],
   external: ["react"],
-  sourcemap: "inline",
-});
+  format: ["cjs", "esm"],
+  minify: true,
+  sourcemap: true,
+};
+
+export default defineConfig([
+  {
+    ...commonConfig,
+    entry: ["src/index.ts"],
+    outDir: "dist",
+  },
+  {
+    ...commonConfig,
+    entry: ["src/client/index.ts"],
+    outDir: "client",
+    esbuildOptions: (options) => {
+      options.banner = {
+        js: '"use client";',
+      };
+    },
+  },
+]);

@@ -1,27 +1,10 @@
-"use client";
-
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { BskyAgent } from "@atproto/api";
 import * as jwt from "jsonwebtoken";
 
-import { useLocalStorageState } from "./hooks/useLocalStorageState";
-import type { LoginResponseDataType } from "./types";
-
-type RefreshJwtType = {
-  exp: number;
-  iat: number;
-  jti: string; // long random key
-  scope: "com.atproto.refresh";
-  sub: string; // did
-};
-
-type AccessJwtType = {
-  exp: number;
-  iat: number;
-  scope: string;
-  sub: string;
-};
+import { useLocalStorageState } from "./useLocalStorageState";
+import type { AccessJwt, LoginResponseData } from "../types";
 
 const agent = new BskyAgent({
   service: "https://bsky.social",
@@ -54,13 +37,10 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [loginResponseData, setLoginResponseData] =
-    useLocalStorageState<LoginResponseDataType | null>(
-      "@loginResopnseData",
-      null
-    );
+    useLocalStorageState<LoginResponseData | null>("@loginResopnseData", null);
 
   const accessJwt = !!loginResponseData?.accessJwt
-    ? (jwt.decode(loginResponseData.accessJwt) as AccessJwtType)
+    ? (jwt.decode(loginResponseData.accessJwt) as AccessJwt)
     : null;
 
   const loginExpiration = accessJwt?.exp;

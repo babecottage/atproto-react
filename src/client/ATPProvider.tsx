@@ -15,7 +15,7 @@ type ATPContextType = {
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  getToken: () => Promise<string | null>;
+  getToken: (args: { ignoreCache?: boolean }) => Promise<string | null>;
 };
 
 export const ATPContext = createContext<ATPContextType>({
@@ -102,9 +102,12 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
     // setIsAuthenticated(false);
   };
 
-  const getToken = async () => {
-    console.log("getToken");
-    return "";
+  const getToken = async ({ ignoreCache = false }) => {
+    if (ignoreCache) {
+      // FIXME: implement refresh session - agent doesn't expose it
+      // agent._refreshSession();
+    }
+    return loginResponseData?.accessJwt || null;
   };
 
   return (

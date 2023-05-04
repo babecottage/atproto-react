@@ -2,10 +2,9 @@
   "name": "atproto-react",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "dev": "pnpm build --watch",
-    "build": "tsup --onSuccess \"pnpm yalc publish\"",
+    "build": "tsup --onSuccess \"pnpm yalc push\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -24,24 +23,6 @@
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "yalc": "1.0.0-pre.53"
-  },
-  "tsup": {
-    "entry": [
-      "src/index.ts"
-    ],
-    "treeshake": true,
-    "sourcemap": "inline",
-    "minify": true,
-    "clean": true,
-    "dts": true,
-    "splitting": false,
-    "format": [
-      "cjs",
-      "esm"
-    ],
-    "external": [
-      "react"
-    ]
   },
   "types": "./dist/index.d.ts",
   "exports": {

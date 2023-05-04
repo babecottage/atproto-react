@@ -128,7 +128,7 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
   return <ATPContext.Provider value={value}>{children}</ATPContext.Provider>;
 };
 
-export const useATPAuthentication = () => {
+export const useATP = () => {
   const { isAuthenticated, login, logout } = useContext(ATPContext);
 
   return {

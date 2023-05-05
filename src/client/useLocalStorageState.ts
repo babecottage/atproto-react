@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export function useLocalStorageState<T>(
   key: string,
-  defaultValue: T
+  defaultValue: T,
 ): [T, (value: T) => void] {
   // First checks localStorage
   // If not found, uses defaultValue

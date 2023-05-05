@@ -6,11 +6,8 @@ import * as jwt from "jsonwebtoken";
 import { useLocalStorageState } from "./useLocalStorageState";
 import type { AccessJwt, LoginResponseData } from "../types";
 
-const agent = new BskyAgent({
-  service: "https://bsky.social",
-});
-
 type ATPContextType = {
+  agent: BskyAgent | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
@@ -19,6 +16,7 @@ type ATPContextType = {
 };
 
 export const ATPContext = createContext<ATPContextType>({
+  agent: null,
   isLoading: false,
   isAuthenticated: false,
   login: async () => {},
@@ -32,7 +30,13 @@ export const ATPContext = createContext<ATPContextType>({
  * https://github.com/louislva/skyline/
  */
 
-export const ATPProvider = ({ children }: { children: ReactNode }) => {
+export const ATPProvider = ({
+  agent,
+  children,
+}: {
+  agent: BskyAgent;
+  children: ReactNode;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [loginResponseData, setLoginResponseData] =
@@ -113,6 +117,7 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ATPContext.Provider
       value={{
+        agent,
         isLoading,
         isAuthenticated,
         login,

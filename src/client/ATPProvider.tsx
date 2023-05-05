@@ -38,7 +38,7 @@ export const ATPProvider = ({ children }: { children: ReactNode }) => {
   const [loginResponseData, setLoginResponseData] =
     useLocalStorageState<LoginResponseData | null>("@loginResponseData", null);
 
-  const accessJwt = !!loginResponseData?.accessJwt
+  const accessJwt = loginResponseData?.accessJwt
     ? (jwt.decode(loginResponseData.accessJwt) as AccessJwt)
     : null;
 

@@ -1,6 +1,6 @@
 {
   "name": "atproto-react",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "scripts": {
     "dev": "pnpm build --watch",

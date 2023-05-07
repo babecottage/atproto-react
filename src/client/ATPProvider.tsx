@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 import { BskyAgent } from "@atproto/api";
 import * as jwt from "jsonwebtoken";
@@ -59,6 +66,7 @@ export const ATPProvider = ({
     if (timeUntilLoginExpire) {
       const timeout = setTimeout(() => {
         setLoginResponseData(null);
+        agent.com.atproto.server.refreshSession();
       }, Math.max(timeUntilLoginExpire, 0));
 
       return () => clearTimeout(timeout);
@@ -71,48 +79,63 @@ export const ATPProvider = ({
     }
   }, [loginResponseData]);
 
-  const login = async (username: string, password: string) => {
-    setIsLoading(true);
+  const login = useCallback(
+    async (username: string, password: string) => {
+      setIsLoading(true);
 
-    try {
-      const response = await agent.login({
-        identifier: username,
-        password,
-      });
+      try {
+        const response = await agent.login({
+          identifier: username,
+          password,
+        });
 
-      console.log(response);
+        console.log(response);
 
-      if (response.success) {
-        setLoginResponseData({ ...response.data });
-        // setIsAuthenticated(true);
-      } else {
+        if (response.success) {
+          setLoginResponseData({ ...response.data });
+          // setIsAuthenticated(true);
+        } else {
+          setLoginResponseData(null);
+          throw new Error("could not login");
+          // setIsAuthenticated(false);
+        }
+      } catch (err) {
         setLoginResponseData(null);
         throw new Error("could not login");
         // setIsAuthenticated(false);
       }
-    } catch (err) {
-      setLoginResponseData(null);
-      throw new Error("could not login");
-      // setIsAuthenticated(false);
-    }
 
-    setIsLoading(false);
+      setIsLoading(false);
 
-    return;
-  };
+      return;
+    },
+    [agent]
+  );
 
   const logout = async () => {
     setLoginResponseData(null);
     // setIsAuthenticated(false);
   };
 
-  const getToken = async ({ ignoreCache = false }) => {
-    if (ignoreCache) {
-      // FIXME: implement refresh session - agent doesn't expose it
-      // agent._refreshSession();
-    }
-    return loginResponseData?.accessJwt || null;
-  };
+  const getToken = useCallback(
+    async ({ ignoreCache = false }) => {
+      if (ignoreCache) {
+        try {
+          const response = await agent.com.atproto.server.refreshSession();
+
+          if (response.success) {
+            setLoginResponseData({ ...response.data });
+
+            return response.data.accessJwt;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      return loginResponseData?.accessJwt || null;
+    },
+    [agent]
+  );
 
   return (
     <ATPContext.Provider
